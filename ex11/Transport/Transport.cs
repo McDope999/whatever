@@ -83,7 +83,7 @@ namespace Transportlaget
 				}
 				seqNo = (byte)((buffer[(int)TransCHKSUM.SEQNO] + 1) % 2);
 			}
- 
+
 			return true;
 		}
 
@@ -114,7 +114,7 @@ namespace Transportlaget
 		/// </param>
 		public void send(byte[] buf, int size)
 		{
-			// TO DO Your own code
+			link.send(buf,size);
 		}
 
 		/// <summary>
@@ -125,7 +125,8 @@ namespace Transportlaget
 		/// </param>
 		public int receive (ref byte[] buf)
 		{
-			// TO DO Your own code
+			int n = link.recieve(buf);
+			return n;
 		}
 	}
 }

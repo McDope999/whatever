@@ -65,7 +65,14 @@ namespace Linklaget
 		/// </param>
 		public void send (byte[] buf, int size)
 		{
-	    	// TO DO Your own code
+	    	for(int i = 0; i< 3; i++)
+				{
+					if(A){
+						outputBiuffer[i] = B;
+						outputBiuffer[i+1] = C;
+						''
+					}
+				}
 		}
 
 		/// <summary>

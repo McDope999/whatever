@@ -17,7 +17,11 @@
 /// </summary>
 file_server::file_server ()
 {
-	// TO DO Your own code
+	char testBuffer[BUFSIZE];
+    Transport::Transport Trans(BUFSIZE);
+    std::cout << "Server open. Waiting for 'A'..." << std::endl;
+    Trans.receive(testBuffer, NULL);
+    std::cout << testBuffer << std::endl;
 }
 
 /// <summary>
@@ -46,6 +50,6 @@ void file_server::sendFile(std::string fileName, long fileSize, Transport::Trans
 int main(int argc, char **argv)
 {
 	new file_server();
-	
+
 	return 0;
 }

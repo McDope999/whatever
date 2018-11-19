@@ -14,7 +14,7 @@
 
 /// <summary>
 /// Initializes a new instance of the <see cref="file_client"/> class.
-/// 
+///
 /// file_client metoden opretter en peer-to-peer forbindelse
 /// Sender en forspørgsel for en bestemt fil om denne findes på serveren
 /// Modtager filen hvis denne findes eller en besked om at den ikke findes (jvf. protokol beskrivelse)
@@ -26,7 +26,10 @@
 /// </param>
 file_client::file_client(int argc, char **argv)
 {
-   	// TO DO Your own code
+    char testBuffer[] = "AXBY";
+    std::cout << "AXBY encoded, trying to send." << std::endl;
+    Transport::Transport* Trans = new Transport::Transport((short)BUFSIZE);
+    Trans->send(testBuffer, (short)4);
 }
 
 /// <summary>
@@ -41,7 +44,7 @@ file_client::file_client(int argc, char **argv)
 void file_client::receiveFile (std::string fileName, Transport::Transport *transport)
 {
 		// TO DO Your own code
-}		
+}
 
 /// <summary>
 /// The entry point of the program, where the program control starts and ends.
@@ -52,6 +55,6 @@ void file_client::receiveFile (std::string fileName, Transport::Transport *trans
 int main(int argc, char** argv)
 {
 	new file_client(argc, argv);
-	
+
 	return 0;
 }

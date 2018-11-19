@@ -1,5 +1,8 @@
 #include <cstdio>
 #include "../include/Link.h"
+#include <iostream>
+
+#define BUFSIZE 1000
 
 namespace Link {
 
@@ -10,7 +13,7 @@ namespace Link {
 Link::Link(int bufsize)
 {
 	buffer = new char[(bufsize*2)];
-	
+
     serialPort=v24OpenPort("/dev/ttyS1",V24_STANDARD);
     if ( serialPort==NULL )
     {
@@ -74,7 +77,12 @@ Link::~Link()
  */
 void Link::send(const char buf[], short size)
 {
-	//TO DO Your own code 
+	char encodedBuffer[BUFSIZE];
+    //char* encodedBufferPtr = encodedBuffer;
+
+    short sizeOfenc = encodeMessage(encodedBuffer, buf, size);
+
+	v24Write(serialPort,(unsigned char*)encodedBuffer, sizeOfenc);
 }
 
 /**
@@ -86,9 +94,82 @@ void Link::send(const char buf[], short size)
  * @param size Antal bytes der maximalt kan modtages
  * @return Antal bytes modtaget
  */
-short Link::receive(char buf[], short size)
+short Link::receive(char buf[], short size) // Ignore short size
 {
-	//TO DO Your own code
+    char receivedChar = NULL;
+    int i = 0;
+
+    do{
+        receivedChar = v24Getc(serialPort);
+    }
+    while(receivedChar != 'A'); // Check if received == 'A'
+
+    buffer[i++] = 'A';
+    std::cout << 'A' << std::endl;
+
+    // When 'A' is received, fill buffer with message.
+    do{
+    char receivedChar = v24Getc(serialPort);
+    std::cout << receivedChar << std::endl;
+    buffer[i++] = receivedChar;
+    }while(receivedChar != 'A'); // Stop at next 'A'
+
+    for(int y = 0; y < i; y++)
+        std::cout << buffer[y];
+    std::cout << std::endl;
+
+    return decodeMessage(buf, buffer, i); // Decode message from buffer to buf. Message is i long.
+}
+
+short Link::encodeMessage(char* encodedBuffer, const char buf[], short size)
+{
+    short charCounter = 0;
+    encodedBuffer[charCounter++] = 'A';	// Inserting delimiter at beginning of message
+
+    for(int i = 0; i < (int)size; i++)
+    {
+        if(buf[i] == 'A')
+            {
+                encodedBuffer[charCounter++] = 'B';
+                encodedBuffer[charCounter++] = 'C';
+            }
+        else if(buf[i] == 'B')
+        {
+            encodedBuffer[charCounter++] = 'B';
+            encodedBuffer[charCounter++] = 'D';
+        }
+        else
+        {
+            encodedBuffer[charCounter++] = buf[i];
+        }
+    }
+
+    encodedBuffer[charCounter++] = 'A';	// Inserting delimiter at end of message
+
+    return charCounter;
+}
+
+short Link::decodeMessage(char* buf, const char encodedBuffer[], short size)
+{
+    short charCounter = 0;
+
+    for(int i = 0; i < size; i++)
+    {
+        if(encodedBuffer[i] == 'A')
+        {}
+        if(encodedBuffer[i] == 'B')
+        {
+            i++;
+            if(encodedBuffer[i] == 'C')
+                buf[charCounter++] = 'A';
+            else if(encodedBuffer[i] == 'D')
+                buf[charCounter++] = 'B';
+        }
+        else
+            buf[charCounter++] = encodedBuffer[i];
+    }
+
+    return charCounter;
 }
 
 } /* namespace Link */

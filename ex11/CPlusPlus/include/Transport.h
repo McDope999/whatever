@@ -16,6 +16,7 @@ namespace Transport
 		~Transport();
 		void send(const char buf[], short size);
 		short receive(char buf[], short size);
+        void insertHeader(const char buf[], short size, unsigned char seq, unsigned char type);
 	private:	
 		Link::Link *link;
 		Checksum *checksum;

@@ -105,20 +105,17 @@ short Link::receive(char buf[], short size) // Ignore short size
     while(receivedChar != 'A'); // Check if received == 'A'
 
     buffer[i++] = 'A';
-    std::cout << 'A' << std::endl;
+    //std::cout << 'A' << std::endl;
 
     // When 'A' is received, fill buffer with message.
     do{
-    char receivedChar = v24Getc(serialPort);
-    std::cout << receivedChar << std::endl;
+    receivedChar = v24Getc(serialPort);
+    //std::cout << receivedChar << std::endl;
     buffer[i++] = receivedChar;
     }while(receivedChar != 'A'); // Stop at next 'A'
 
-    for(int y = 0; y < i; y++)
-        std::cout << buffer[y];
-    std::cout << std::endl;
-
-    return decodeMessage(buf, buffer, i); // Decode message from buffer to buf. Message is i long.
+    short returnValue = decodeMessage(buf, buffer, i);
+    return returnValue; // Decode message from buffer to buf. Message is i long.
 }
 
 short Link::encodeMessage(char* encodedBuffer, const char buf[], short size)
@@ -157,7 +154,7 @@ short Link::decodeMessage(char* buf, const char encodedBuffer[], short size)
     {
         if(encodedBuffer[i] == 'A')
         {}
-        if(encodedBuffer[i] == 'B')
+        else if(encodedBuffer[i] == 'B')
         {
             i++;
             if(encodedBuffer[i] == 'C')

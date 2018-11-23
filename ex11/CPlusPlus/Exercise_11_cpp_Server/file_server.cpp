@@ -20,8 +20,13 @@ file_server::file_server ()
 	char testBuffer[BUFSIZE];
     Transport::Transport Trans(BUFSIZE);
     std::cout << "Server open. Waiting for 'A'..." << std::endl;
-    Trans.receive(testBuffer, NULL);
-    std::cout << testBuffer << std::endl;
+    long int numberOfChars = Trans.receive(testBuffer, NULL);
+
+    for(int y = 0; y < numberOfChars; y++)
+       std::cout << testBuffer[y];
+    std::cout << std::endl;
+
+    std::cout << "Number of Chars received: " << numberOfChars << std::endl;
 }
 
 /// <summary>

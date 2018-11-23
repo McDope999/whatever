@@ -33,6 +33,22 @@ namespace Transport
 		if(buffer) delete [] buffer;
 	}
 	
+
+    /// <summary>
+    /// inserts seqNo
+    /// inserts type
+    /// inserts checksum
+    /// </summary>
+    void Transport::insertHeader(const char buf[], short size, unsigned char seq, unsigned char type)
+    {
+        memcpy(buffer, buf+CHKSUMSIZE, size-CHKSUMSIZE);
+        buffer[CHKSUMHIGH] = seq;
+        buffer[CHKSUMLOW] = type;
+
+        checksum->calcChecksum(buffer,size+2);
+    }
+
+
 	/// <summary>
 	/// Receives the ack.
 	/// </summary>
@@ -86,8 +102,19 @@ namespace Transport
 	/// </param>
 	void Transport::send(const char buf[], short size)
 	{
-		// TO DO Your own code
-        link->send(buf, size);
+        bool receivedAck;
+        insertHeader(buf, size, seqNo, 0);
+        do{
+            link->send(buffer, size);
+            receivedAck = receiveAck();
+        }while(receivedAck == false);
+
+        /* link->send(buf, size);
+         * receiveAck(); ack/nack modtages
+         * check ack/nack:
+         * if ack return
+         * else send igen
+        */
 	}
 
 	/// <summary>
@@ -98,8 +125,37 @@ namespace Transport
 	/// </param>
 	short Transport::receive(char buf[], short size)
 	{
-		// TO DO Your own code
-        return link->receive(buf, size);
+        bool checkCheck;
+        int sizeOfMsg;
+        do{
+        sizeOfMsg = link->receive(buffer, NULL);
+
+        checkCheck = checksum->checkChecksum(buffer, sizeOfMsg);
+        seqNo = buffer[SEQNO];
+
+        if(checkCheck)
+            sendAck(true);
+        else
+            sendAck(false);
+        }while(checkCheck == false || old_seqNo == seqNo);
+
+
+        if(buffer[SEQNO] != old_seqNo)
+            {
+                for(int i = 0; i < sizeOfMsg; i++)
+                {
+                    buf[i] = buffer[i];
+                }
+                old_seqNo = buffer[SEQNO];
+            }
+     return sizeOfMsg;
+
+        /* receive from link layer
+         * check checksum
+         * send ack/nack
+         * check seqNr
+         * if seqNr = new -> send til applikationslag
+         * else -> ignore */
 	}
 }
 

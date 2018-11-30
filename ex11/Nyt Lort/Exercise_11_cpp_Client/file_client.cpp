@@ -15,7 +15,6 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <fcntl.h>
-#include <iknlib.h>
 
 /// <summary>
 /// The BUFSIZE
@@ -53,7 +52,7 @@ file_client::file_client(void)
     trans.send(buffer, strlen(buffer));
 
     char fileName[256];
-    strcpy(fileName,extractFileName(buffer)); //Using library function extractfilename to get filename.
+    strcpy(fileName,extractFileName(buffer).c_str()); //Using library function extractfilename to get filename.
     receiveFile(fileName,&trans); //Receiving file from server.
 }
 

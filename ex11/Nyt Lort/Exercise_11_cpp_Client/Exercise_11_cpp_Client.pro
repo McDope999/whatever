@@ -8,8 +8,7 @@ SOURCES += \
     ../Source/Checksum.cpp \
     ../Source/lib.cpp \
     ../Source/Link.cpp \
-    ../Source/Transport.cpp \
-    ../Exercise_6_cpp/main_client.cpp
+    ../Source/Transport.cpp
 
 HEADERS += \
     ../include/Checksum.h \

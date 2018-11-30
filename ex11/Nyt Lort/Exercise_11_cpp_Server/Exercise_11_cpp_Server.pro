@@ -4,12 +4,11 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += \
-    file_client.cpp \
+    file_server.cpp \
     ../Source/Checksum.cpp \
     ../Source/lib.cpp \
     ../Source/Link.cpp \
-    ../Source/Transport.cpp \
-    ../Exercise_6_cpp/main_client.cpp
+    ../Source/Transport.cpp
 
 HEADERS += \
     ../include/Checksum.h \

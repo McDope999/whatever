@@ -35,7 +35,7 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = Exercise_11_cpp_Client1.0.0
-DISTDIR = /root/Documents/TopAmpRep/whatever/ex11/CPlusPlus/build-Exercise_11_cpp_Client-Desktop-Debug/.tmp/Exercise_11_cpp_Client1.0.0
+DISTDIR = /root/Desktop/Nyt\ Lort/build-Exercise_11_cpp_Client-Desktop-Debug/.tmp/Exercise_11_cpp_Client1.0.0
 LINK          = g++
 LFLAGS        = 
 LIBS          = $(SUBLIBS) -lezV24 
@@ -54,14 +54,12 @@ SOURCES       = ../Exercise_11_cpp_Client/file_client.cpp \
 		../Source/Checksum.cpp \
 		../Source/lib.cpp \
 		../Source/Link.cpp \
-		../Source/Transport.cpp \
-		../Exercise_6_cpp/main_client.cpp 
+		../Source/Transport.cpp 
 OBJECTS       = file_client.o \
 		Checksum.o \
 		lib.o \
 		Link.o \
-		Transport.o \
-		main_client.o
+		Transport.o
 DIST          = /usr/lib/i386-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/i386-linux-gnu/qt5/mkspecs/common/unix.conf \
 		/usr/lib/i386-linux-gnu/qt5/mkspecs/common/linux.conf \
@@ -138,8 +136,7 @@ DIST          = /usr/lib/i386-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		../Source/Checksum.cpp \
 		../Source/lib.cpp \
 		../Source/Link.cpp \
-		../Source/Transport.cpp \
-		../Exercise_6_cpp/main_client.cpp
+		../Source/Transport.cpp
 QMAKE_TARGET  = Exercise_11_cpp_Client
 DESTDIR       = 
 TARGET        = Exercise_11_cpp_Client
@@ -355,9 +352,6 @@ Transport.o: ../Source/Transport.cpp ../include/Transport.h \
 		../include/Checksum.h \
 		../include/TransConst.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Transport.o ../Source/Transport.cpp
-
-main_client.o: ../Exercise_6_cpp/main_client.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main_client.o ../Exercise_6_cpp/main_client.cpp
 
 ####### Install
 

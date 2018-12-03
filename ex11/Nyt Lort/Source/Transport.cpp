@@ -88,14 +88,14 @@ namespace Transport
         ackBuf [SEQNO] = (ackType ? (buffer [SEQNO] + 1) % 2 : buffer [SEQNO]) ;
         ackBuf [TYPE] = ACK;
         checksum->calcChecksum (ackBuf, ACKSIZE);
-
+/*
         // INSERTED NOISE
         if(++errorCount == 3) // Simulate noise
         {
             ackBuf[1]++;
             std::cout << "Noise! byte #1 is spoiled in the third transmitted ACK-page!" << std::endl;
         }
-
+*/
         link->send(ackBuf, ACKSIZE);
     }
 
@@ -112,11 +112,13 @@ namespace Transport
     {
         bool receivedAck;
         insertHeader(buf, size, seqNo, 0);
+        /*
         if(++errorCount == 3) // Simulate noise
         {
              buffer[CHKSUMLOW]++; // Important: Only spoil a checksum-field (buffer[0] or buffer[1])
              std::cout << "Noise! - byte #1 is spoiled in the third transmission" << std::endl;
         }
+        */
         do{
             link->send(buffer, size+4);
             receivedAck = receiveAck();

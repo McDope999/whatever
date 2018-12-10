@@ -77,12 +77,12 @@ Link::~Link()
  */
 void Link::send(const char buf[], short size)
 {
-    char encodedBuffer[BUFSIZE];
+    //char encodedBuffer[BUFSIZE];
     //char* encodedBufferPtr = encodedBuffer;
 
-    short sizeOfenc = encodeMessage(encodedBuffer, buf, size);
+    short sizeOfenc = encodeMessage(buffer, buf, size);
 
-    v24Write(serialPort,(unsigned char*)encodedBuffer, sizeOfenc);
+    v24Write(serialPort,(unsigned char*)buffer, sizeOfenc);
 }
 
 /**

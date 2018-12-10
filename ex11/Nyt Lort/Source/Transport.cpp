@@ -4,6 +4,7 @@
 #include "../include/Transport.h"
 #include "../include/TransConst.h"
 
+
 #define DEFAULT_SEQNO 2
 
 namespace Transport
@@ -41,13 +42,31 @@ namespace Transport
     /// </summary>
     void Transport::insertHeader(const char buf[], short size, unsigned char seq, unsigned char type)
     {
+        // Debugging
+        // std::cout << "insertHeader entered." << std::endl;
         for(int i = 0; i < size; i++)
         {
             buffer[i+4] = buf[i];
         }
-        buffer[SEQNO] = seqNo;
+        buffer[SEQNO] = seq;
+        // Debugging
+        // std::cout << seq << " (seq) is inserted at buffer[" << SEQNO << "]" << std::endl;
         buffer[TYPE] = type;
+        // Debugging
+        // std::cout << type << " (type) is inserted at buffer[" << TYPE << "]" << std::endl;
+
         checksum->calcChecksum(buffer,size+4);
+        // Debugging
+        // std::cout << "buffer[0] = " << buffer[0] << std::endl;
+        // std::cout << "buffer[1] = " << buffer[1] << std::endl;
+        // std::cout << "buffer[2] = " << buffer[2] << std::endl;
+        // std::cout << "buffer[3] = " << buffer[3] << std::endl;
+        // std::cout << "buffer[4] = " << buffer[4] << std::endl;
+        // std::cout << "buffer[5] = " << buffer[5] << std::endl;
+        // std::cout << "buffer[6] = " << buffer[6] << std::endl;
+        // std::cout << "buffer[7] = " << buffer[7] << std::endl;
+        // std::cout << "buffer[8] = " << buffer[8] << std::endl;
+        // std::cout << "buffer[9] = " << buffer[9] << std::endl;
     }
 
     /// <summary>
@@ -88,14 +107,14 @@ namespace Transport
         ackBuf [SEQNO] = (ackType ? (buffer [SEQNO] + 1) % 2 : buffer [SEQNO]) ;
         ackBuf [TYPE] = ACK;
         checksum->calcChecksum (ackBuf, ACKSIZE);
-/*
+
         // INSERTED NOISE
-        if(++errorCount == 3) // Simulate noise
-        {
-            ackBuf[1]++;
-            std::cout << "Noise! byte #1 is spoiled in the third transmitted ACK-page!" << std::endl;
-        }
-*/
+        //if(++errorCount == 3) // Simulate noise
+        //{
+        //    ackBuf[1]++;
+        //    std::cout << "Noise! byte #1 is spoiled in the third transmitted ACK-page!" << std::endl;
+        //}
+
         link->send(ackBuf, ACKSIZE);
     }
 
@@ -110,27 +129,45 @@ namespace Transport
     /// </param>
     void Transport::send(const char buf[], short size)
     {
-        bool receivedAck;
+        bool receivedAck = false;
         insertHeader(buf, size, seqNo, 0);
-        /*
-        if(++errorCount == 3) // Simulate noise
-        {
-             buffer[CHKSUMLOW]++; // Important: Only spoil a checksum-field (buffer[0] or buffer[1])
-             std::cout << "Noise! - byte #1 is spoiled in the third transmission" << std::endl;
-        }
-        */
+
+         if(++errorCount == 3) // Simulate noise
+         {
+               buffer[CHKSUMLOW]++; // Important: Only spoil a checksum-field (buffer[0] or buffer[1])
+               std::cout << "Noise! - byte #1 is spoiled in the third transmission" << std::endl;
+          }
+
+        int attemptCounter = 0; // attempt counter to keep track of times NAK was received and same package is attempted sent
         do{
+            if(attemptCounter!=0)
+                std::cout << "Attempting to send package again ( Attempt #" << attemptCounter << ") ." << std::endl;
             link->send(buffer, size+4);
+
             receivedAck = receiveAck();
+            old_seqNo = seqNo;
+
+            attemptCounter++;
         }while(receivedAck == false);
 
+        attemptCounter = 0; // resetting attempt counter for next package
+
+        // Debugging
+        // std::cout << "buffer after link->send(buffer,size+4)" << std::endl;
+        // std::cout << "buffer[4] = " << buffer[4] << std::endl;
+        // std::cout << "buffer[5] = " << buffer[5] << std::endl;
+        // std::cout << "buffer[6] = " << buffer[6] << std::endl;
+        // std::cout << "buffer[7] = " << buffer[7] << std::endl;
+        // std::cout << "buffer[8] = " << buffer[8] << std::endl;
+        // std::cout << "buffer[9] = " << buffer[9] << std::endl;
         old_seqNo = DEFAULT_SEQNO;
-        /* link->send(buf, size);
-         * receiveAck(); ack/nack modtages
-         * check ack/nack:
-         * if ack return
-         * else send igen
-        */
+
+        //link->send(buf, size);
+        // receiveAck(); ack/nack modtages
+        //  check ack/nack:
+        //  if ack return
+        //  else send igen
+
     }
 
     /// <summary>
@@ -143,35 +180,45 @@ namespace Transport
     {
         bool checkCheck;
         int sizeOfMsg;
+
         do{
-        sizeOfMsg = link->receive(buffer, NULL);
-        seqNo = buffer[SEQNO];
-        checkCheck = checksum->checkChecksum(buffer, sizeOfMsg);
+            sizeOfMsg = link->receive(buffer, NULL);
+            checkCheck = checksum->checkChecksum(buffer, sizeOfMsg);
+            seqNo = buffer[SEQNO];
 
-        sizeOfMsg-=4;
-        memcpy(buffer, buffer+4, sizeOfMsg);  // Deleting the size and type slots
-
-        if(checkCheck)
-            sendAck(true);
-        else
-            sendAck(false);
-        }while(checkCheck == false || old_seqNo == seqNo);
-
-        if(buffer[SEQNO] != old_seqNo)
+            if(checkCheck == true && old_seqNo != seqNo)
             {
-                for(int i = 0; i < sizeOfMsg; i++)    // -2 because of checksum, type and seqNo-array slots
-                {
-                    buf[i] = buffer[i];               // +2 because of type and seqNo-array slots
-                }
-                old_seqNo = buffer[SEQNO];
+                sendAck(false);
             }
+            else
+            {
+                sendAck(true);
+            }
+        }while((checkCheck == false) || (old_seqNo == buffer[SEQNO]));
+
+
+        for(int i = 0; i < sizeOfMsg-4; i++)
+        {
+            buf[i] = buffer[i+4];
+        }
+        old_seqNo = buffer[SEQNO];
+        return sizeOfMsg-4;
+
+        // Debugging
+        // std::cout << "buffer after link->receive(buffer,NULL)" << std::endl;
+        // std::cout << "buffer[4] = " << buffer[4] << std::endl;
+        // std::cout << "buffer[5] = " << buffer[5] << std::endl;
+        // std::cout << "buffer[6] = " << buffer[6] << std::endl;
+        // std::cout << "buffer[7] = " << buffer[7] << std::endl;
+        // std::cout << "buffer[8] = " << buffer[8] << std::endl;
+        // std::cout << "buffer[9] = " << buffer[9] << std::endl;
      return sizeOfMsg;
 
-        /* receive from link layer
-         * check checksum
-         * send ack/nack
-         * check seqNr
-         * if seqNr = new -> send til applikationslag
-         * else -> ignore */
+       //  receive from link layer
+       //  check checksum
+       //  send ack/nack
+       //  check seqNr
+       //  if seqNr = new -> send til applikationslag
+       //  else -> ignore
     }
 }
